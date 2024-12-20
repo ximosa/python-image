@@ -32,7 +32,7 @@ def main():
     if uploaded_file is not None:
         try:
             image = Image.open(uploaded_file)
-            st.image(image, caption="Imagen Original", use_column_width=True)
+            st.image(image, caption="Imagen Original", use_container_width=True)
             
             st.subheader("Opciones de Conversión")
             
@@ -47,7 +47,7 @@ def main():
               if buffer_convertido:
                   st.success(f"Imagen convertida a formato {formato_seleccionado.upper()}")
                   image_convertida = Image.open(buffer_convertido)
-                  st.image(image_convertida, caption="Imagen convertida", use_column_width=True)
+                  st.image(image_convertida, caption="Imagen convertida", use_container_width=True)
             
             st.subheader("Opciones de Redimensionamiento")
 
@@ -62,7 +62,7 @@ def main():
                 image_redimensionada = redimensionar_imagen(image, int(ancho), int(alto))
               
               st.success(f"Imagen redimensionada a {ancho}x{alto}")
-              st.image(image_redimensionada, caption="Imagen Redimensionada", use_column_width=True)
+              st.image(image_redimensionada, caption="Imagen Redimensionada", use_container_width=True)
 
             st.subheader("Descarga")
             
