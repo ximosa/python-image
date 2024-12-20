@@ -4,10 +4,23 @@ import io
 import os
 
 def convertir_formato(imagen, formato):
-    """Convierte una imagen a un formato específico."""
+    """Convierte una imagen a un formato específico y optimiza la compresión."""
     try:
         buffer = io.BytesIO()
-        imagen.save(buffer, format=formato.upper())
+        if formato.lower() == "jpg" or formato.lower() == "jpeg":
+            # Ajusta la calidad JPEG (valores entre 0 y 95, siendo 95 la mayor calidad)
+            imagen_sin_transparencia = imagen.convert("RGB") if imagen.mode == "RGBA" else imagen
+            imagen_sin_transparencia.save(buffer, format="JPEG", quality=70, optimize=True, progressive=True)
+        elif formato.lower() == "png":
+            # Optimización PNG
+            imagen.save(buffer, format="PNG", optimize=True, compress_level=9)
+        elif formato.lower() == "webp":
+             # Optimizacion Webp
+             imagen.save(buffer, format="WEBP", quality = 70, method = 6)
+        elif formato.lower() == "gif":
+             imagen.save(buffer, format="GIF", optimize=True)
+        else:
+             imagen.save(buffer, format=formato.upper())
         buffer.seek(0)
         return buffer
     except Exception as e:
@@ -60,7 +73,7 @@ def main():
             
             if convertir and buffer_convertido:
                 buffer_descarga = io.BytesIO()
-                image_convertida.save(buffer_descarga, format = formato_seleccionado.upper())
+                image_convertida.save(buffer_descarga, format = formato_seleccionado.upper() if formato_seleccionado.lower() != "gif" else "GIF", save_all = True, optimize=True)
                 buffer_descarga.seek(0)
                 st.download_button(
                     label="Descargar Imagen Convertida",
@@ -71,13 +84,14 @@ def main():
 
             else:
                 buffer_descarga = io.BytesIO()
-                image.save(buffer_descarga, format = image.format if image.format else "PNG")
+                formato_default = "JPEG" if image.mode != "RGBA" and image.mode != "LA" else "PNG"
+                image.save(buffer_descarga, format = image.format if image.format else formato_default , optimize = True, progressive = True, quality=70 if formato_default == "JPEG" else None)
                 buffer_descarga.seek(0)
                 st.download_button(
                     label="Descargar Imagen Original",
                     data=buffer_descarga,
-                    file_name=f"imagen_original.{image.format.lower() if image.format else 'png'}",
-                    mime=f"image/{image.format.lower() if image.format else 'png'}"
+                    file_name=f"imagen_original.{image.format.lower() if image.format else formato_default.lower()}",
+                    mime=f"image/{image.format.lower() if image.format else formato_default.lower()}"
                 )
 
 
@@ -99,13 +113,16 @@ def main():
 
               st.subheader("Descarga de Imagen Redimensionada")
               buffer_descarga_redimensionada = io.BytesIO()
-              image_redimensionada.save(buffer_descarga_redimensionada, format= image_redimensionada.format if image_redimensionada.format else "PNG")
+              
+              formato_redimensionada = image_redimensionada.format if image_redimensionada.format else "PNG"
+              
+              image_redimensionada.save(buffer_descarga_redimensionada, format=formato_redimensionada if formato_redimensionada.lower() != "gif" else "GIF",  save_all=True, optimize=True)
               buffer_descarga_redimensionada.seek(0)
               st.download_button(
                 label="Descargar Imagen Redimensionada",
                 data=buffer_descarga_redimensionada,
-                file_name=f"imagen_redimensionada.{image_redimensionada.format.lower() if image_redimensionada.format else 'png'}",
-                mime=f"image/{image_redimensionada.format.lower() if image_redimensionada.format else 'png'}"
+                file_name=f"imagen_redimensionada.{formato_redimensionada.lower()}",
+                mime=f"image/{formato_redimensionada.lower()}"
               )
 
         except Exception as e:
